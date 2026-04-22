@@ -1,0 +1,8 @@
+{
+  "name": "QuickBite",
+  "description": "Premium Bold-Typography Food Delivery Platform with Real-time Order Tracking and High-Output Logistics Control.",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": []
+}

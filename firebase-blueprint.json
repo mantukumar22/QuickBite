@@ -1,0 +1,86 @@
+{
+  "entities": {
+    "Restaurant": {
+      "title": "Restaurant",
+      "description": "A food establishment that offers a menu of items.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "image": { "type": "string" },
+        "category": { "type": "string" },
+        "rating": { "type": "number" },
+        "deliveryTime": { "type": "string" },
+        "deliveryFee": { "type": "number" },
+        "featured": { "type": "boolean" }
+      },
+      "required": ["name", "image", "category"]
+    },
+    "MenuItem": {
+      "title": "MenuItem",
+      "description": "An individual food or drink item on a restaurant's menu.",
+      "type": "object",
+      "properties": {
+        "restaurantId": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "price": { "type": "number" },
+        "image": { "type": "string" },
+        "category": { "type": "string" }
+      },
+      "required": ["restaurantId", "name", "price"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "A food order placed by a user.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "restaurantId": { "type": "string" },
+        "restaurantName": { "type": "string" },
+        "items": { 
+          "type": "array",
+          "items": { "type": "object" }
+        },
+        "totalAmount": { "type": "number" },
+        "status": { 
+          "type": "string",
+          "enum": ["pending", "confirmed", "preparing", "on-the-way", "delivered", "cancelled"] 
+        },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "deliveryAddress": { "type": "string" }
+      },
+      "required": ["userId", "restaurantId", "items", "totalAmount"]
+    },
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Extended user information stored in Firestore.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "admin"] },
+        "profilePic": { "type": "string" }
+      },
+      "required": ["email"]
+    }
+  },
+  "firestore": {
+    "/restaurants/{restaurantId}": {
+      "schema": "Restaurant",
+      "description": "Collection of all available restaurants."
+    },
+    "/menuItems/{menuItemId}": {
+      "schema": "MenuItem",
+      "description": "Flat collection of all menu items (filterable by restaurantId)."
+    },
+    "/orders/{orderId}": {
+      "schema": "Order",
+      "description": "Orders placed by users."
+    },
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profiles."
+    }
+  }
+}

@@ -1,0 +1,68 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() { return request.auth != null; }
+    function isOwner(userId) { return isSignedIn() && request.auth.uid == userId; }
+    function isAdmin() { 
+      // Hardcoded check for initial setup or check against an admins collection
+      return isSignedIn() && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        request.auth.token.email == 'amritguru2007@gmail.com'
+      ); 
+    }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+
+    // Restaurants: Public Read, Admin Write
+    match /restaurants/{restaurantId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // MenuItems: Public Read, Admin Write
+    match /menuItems/{menuItemId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // User Profiles: Own Read/Write
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isOwner(userId) && (
+        incoming().role == 'user' || 
+        (incoming().role == 'admin' && request.auth.token.email == 'amritguru2007@gmail.com')
+      );
+      allow update: if isOwner(userId) && (
+        incoming().diff(existing()).affectedKeys().hasOnly(['name', 'profilePic'])
+      ) || isAdmin();
+    }
+
+    // Orders: Own Read/Create, Admin Read/Update
+    match /orders/{orderId} {
+      allow create: if isSignedIn() && (
+        incoming().userId == request.auth.uid &&
+        incoming().status == 'pending' &&
+        incoming().createdAt == request.time
+      );
+      allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow update: if isSignedIn() && (
+        (isOwner(resource.data.userId) && incoming().status == 'cancelled' && existing().status == 'pending') ||
+        (isAdmin() && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt']))
+      );
+    }
+
+    // Admin record: Only manual setup or super admin
+    match /admins/{adminId} {
+      allow read: if isAdmin();
+      allow write: if false; // Only via Firebase Console
+    }
+  }
+}
