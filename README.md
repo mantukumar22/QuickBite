@@ -2,7 +2,7 @@
 <img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
 
-deployed link: https://69e8b4aa0337ce006573bd7b--genuine-clafoutis-5d3a1c.netlify.app/
+deployed link: https://quickbite1-nkmm.onrender.com/
 
 # Run and deploy your AI Studio app
 
